@@ -44,14 +44,10 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
           itemGroup._3.writers.getOrElse("").split(",")
         ).distinct
 
-        val principalNamesFuture = getNamesByIds(principalIds)
-        val crewNamesFuture = getNamesByIds(crewIds)
-
         for {
-          principalNames <- principalNamesFuture
-          crewNames <- crewNamesFuture
-        } yield {
-          val principals = group.map(_._2).distinct.map { principal =>
+          principalNames <- getNamesByIds(principalIds)
+          crewNames <- getNamesByIds(crewIds)
+          principals = group.map(_._2).distinct.map { principal =>
             val nameBasic = principalNames.find(nameBasic => nameBasic.nconst == principal.nconst)
             PrincipalDTO(
               principal.nconst,
@@ -59,8 +55,7 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
               nameBasic.flatMap(_.birthYear).getOrElse(0)
             )
           }
-
-          val crew = crewNames.collect {
+          crew = crewNames.collect {
             case nameBasic if crewIds.contains(nameBasic.nconst) =>
               val role =
                 if (group.exists(_._3.directors.getOrElse("").split(",").contains(nameBasic.nconst))) "Director"
@@ -73,7 +68,7 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
                 role
               )
           }
-
+        } yield {
           MovieWithDetailsDTO(
             titleBasic.tconst,
             titleBasic.titleType.getOrElse(""),
