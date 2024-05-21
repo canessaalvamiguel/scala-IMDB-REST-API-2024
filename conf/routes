@@ -15,6 +15,12 @@ POST    /titlebasics             controllers.TitleBasicController.create
 GET     /titlebasics/:tconst     controllers.TitleBasicController.read(tconst: String)
 PUT     /titlebasics/:tconst     controllers.TitleBasicController.update(tconst: String)
 DELETE  /titlebasics/:tconst     controllers.TitleBasicController.delete(tconst: String)
+GET     /titlecrews             controllers.TitleCrewController.list
+POST    /titlecrews             controllers.TitleCrewController.create
+GET     /titlecrews/:tconst     controllers.TitleCrewController.read(tconst: String)
+PUT     /titlecrews/:tconst     controllers.TitleCrewController.update(tconst: String)
+DELETE  /titlecrews/:tconst     controllers.TitleCrewController.delete(tconst: String)
+
 
 
 # Map static resources from the /public folder to the /assets URL path
