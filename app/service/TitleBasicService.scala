@@ -1,13 +1,14 @@
 package services
 
-import javax.inject._
-import daos.TitleBasicDAO
+import daos.{NameBasicDAO, TitleBasicDAO}
 import models.TitleBasic
+import service.MovieWithDetailsDTO
 
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: ExecutionContext) {
+class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO, nameBasicDAO: NameBasicDAO)(implicit ec: ExecutionContext) {
 
   def getAll(): Future[Seq[TitleBasic]] = {
     titleBasicDAO.all()
@@ -27,5 +28,9 @@ class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: Exe
 
   def delete(tconst: String): Future[Int] = {
     titleBasicDAO.delete(tconst)
+  }
+
+  def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
+    titleBasicDAO.searchByTitle(title)
   }
 }

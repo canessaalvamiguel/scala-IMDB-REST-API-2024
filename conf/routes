@@ -30,7 +30,8 @@ POST    /titleratings               controllers.TitleRatingController.create
 GET     /titleratings/:tconst       controllers.TitleRatingController.read(tconst: String)
 PUT     /titleratings/:tconst       controllers.TitleRatingController.update(tconst: String)
 DELETE  /titleratings/:tconst       controllers.TitleRatingController.delete(tconst: String)
-GET     /titleratings/TopRatedMoviesByGenre/:genre    controllers.TitleRatingController.getTopRatedMoviesByGenre(genre: String)
+GET     /api/movie/genre/:genre    controllers.TitleRatingController.getTopRatedMoviesByGenre(genre: String)
+GET     /api/movie/:title       controllers.TitleBasicController.searchByTitle(title: String)
 
 
 

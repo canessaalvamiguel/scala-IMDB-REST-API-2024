@@ -1,10 +1,10 @@
 package daos
 
-import javax.inject.Inject
 import models.{NameBasic, NameBasicsTable}
-import slick.jdbc.JdbcProfile
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.jdbc.JdbcProfile
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NameBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit executionContext: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {

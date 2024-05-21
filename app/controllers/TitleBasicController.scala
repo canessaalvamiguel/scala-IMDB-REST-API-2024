@@ -54,4 +54,10 @@ class TitleBasicController @Inject()(val controllerComponents: ControllerCompone
       case _ => NoContent
     }
   }
+
+  def searchByTitle(title: String) = Action.async {
+    titleBasicService.searchByTitle(title).map { movies =>
+      Ok(Json.toJson(movies))
+    }
+  }
 }
