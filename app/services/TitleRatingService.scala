@@ -1,16 +1,15 @@
 package services
 
 import actors.TitleRatingActor
-import actors.TitleRatingActor.{GetTopRatedMoviesByGenre, MoviesByOriginalName}
+import actors.TitleRatingActor._
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
-
-import javax.inject._
 import daos.TitleRatingDAO
 import models.TitleRating
 import services.dto.MovieRatingDTO
 
+import javax.inject._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -22,23 +21,23 @@ class TitleRatingService @Inject()(titleRatingDAO: TitleRatingDAO)(implicit ec: 
   implicit val timeout: Timeout = 5.seconds
 
   def getAll(): Future[Seq[TitleRating]] = {
-    titleRatingDAO.all()
+    (titleRatingActor ? GetAll()).mapTo[Seq[TitleRating]]
   }
 
   def create(titleRating: TitleRating): Future[Int] = {
-    titleRatingDAO.insert(titleRating)
+    (titleRatingActor ? Insert(titleRating)).mapTo[Int]
   }
 
   def getById(tconst: String): Future[Option[TitleRating]] = {
-    titleRatingDAO.findById(tconst)
+    (titleRatingActor ? GetById(tconst)).mapTo[Option[TitleRating]]
   }
 
   def update(tconst: String, titleRating: TitleRating): Future[Int] = {
-    titleRatingDAO.update(tconst, titleRating)
+    (titleRatingActor ? Update(tconst, titleRating)).mapTo[Int]
   }
 
   def delete(tconst: String): Future[Int] = {
-    titleRatingDAO.delete(tconst)
+    (titleRatingActor ? Delete(tconst)).mapTo[Int]
   }
 
   def getTopRatedMoviesByGenre(genre: String): Future[Seq[MovieRatingDTO]] = {
