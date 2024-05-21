@@ -1,7 +1,7 @@
 package services
 
 import actors.TitleBasicActor
-import actors.TitleBasicActor.{GetMovieByTitle, MovieInfo}
+import actors.TitleBasicActor.{Delete, GetAll, GetById, GetMovieByTitle, Insert, MovieInfo, Update}
 import akka.actor.{ActorRef, ActorSystem}
 import akka.util.Timeout
 import daos.TitleBasicDAO
@@ -18,26 +18,26 @@ class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: Exe
 
   val actorSystem = ActorSystem("MovieActorSystem")
   private val titleBasicActor: ActorRef = actorSystem.actorOf(TitleBasicActor.props(titleBasicDAO), "titleBasicActor")
-  implicit val timeout: Timeout = 5.seconds
+  implicit val timeout: Timeout = 20.seconds
 
   def getAll(): Future[Seq[TitleBasic]] = {
-    titleBasicDAO.all()
+    (titleBasicActor ? GetAll()).mapTo[Seq[TitleBasic]]
   }
 
   def create(titleBasic: TitleBasic): Future[Int] = {
-    titleBasicDAO.insert(titleBasic)
+    (titleBasicActor ? Insert(titleBasic)).mapTo[Int]
   }
 
   def getById(tconst: String): Future[Option[TitleBasic]] = {
-    titleBasicDAO.findById(tconst)
+    (titleBasicActor ? GetById(tconst)).mapTo[Option[TitleBasic]]
   }
 
   def update(tconst: String, titleBasic: TitleBasic): Future[Int] = {
-    titleBasicDAO.update(tconst, titleBasic)
+    (titleBasicActor ? Update(tconst, titleBasic)).mapTo[Int]
   }
 
   def delete(tconst: String): Future[Int] = {
-    titleBasicDAO.delete(tconst)
+    (titleBasicActor ? Delete(tconst)).mapTo[Int]
   }
 
   def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
