@@ -1,16 +1,23 @@
 package controllers
 
-import javax.inject._
-import services.TitleBasicService
 import models.TitleBasic
 import play.api.libs.json._
 import play.api.mvc._
+import service.MovieWithDetailsDTO
+import services.TitleBasicService
+
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TitleBasicController @Inject()(val controllerComponents: ControllerComponents, titleBasicService: TitleBasicService)(implicit ec: ExecutionContext) extends BaseController {
+class TitleBasicController @Inject()(
+                                      val controllerComponents: ControllerComponents,
+                                      titleBasicService: TitleBasicService
+                                    )
+                                    (implicit ec: ExecutionContext) extends BaseController{
 
   implicit val titleBasicFormat: OFormat[TitleBasic] = Json.format[TitleBasic]
+  implicit val movieDetailsFormat: OFormat[MovieWithDetailsDTO] = Json.format[MovieWithDetailsDTO]
 
   def list() = Action.async {
     titleBasicService.getAll().map { titleBasics =>
@@ -55,9 +62,16 @@ class TitleBasicController @Inject()(val controllerComponents: ControllerCompone
     }
   }
 
-  def searchByTitle(title: String) = Action.async {
-    titleBasicService.searchByTitle(title).map { movies =>
-      Ok(Json.toJson(movies))
+  def searchByTitle(title: String) = Action.async { implicit request =>
+    if (title.length < 3) {
+      val errorResponse = Json.obj(
+        "error" -> "Title must be at least 3 characters long"
+      )
+      Future.successful(BadRequest(errorResponse))
+    } else {
+      titleBasicService.searchByTitle(title).map { movies =>
+        Ok(Json.toJson(movies))
+      }
     }
   }
 }

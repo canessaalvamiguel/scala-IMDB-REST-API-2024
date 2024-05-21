@@ -59,8 +59,15 @@ class TitleRatingController @Inject()(val controllerComponents: ControllerCompon
   }
 
   def getTopRatedMoviesByGenre(genre: String) = Action.async{
-    titleRatingService.getTopRatedMoviesByGenre(genre).map { titleRatings =>
-      Ok(Json.toJson(titleRatings))
+    if (genre.length < 3) {
+      val errorResponse = Json.obj(
+        "error" -> "Genre must be at least 3 characters long"
+      )
+      Future.successful(BadRequest(errorResponse))
+    }else {
+      titleRatingService.getTopRatedMoviesByGenre(genre).map { titleRatings =>
+        Ok(Json.toJson(titleRatings))
+      }
     }
   }
 }
