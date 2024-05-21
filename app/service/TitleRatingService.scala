@@ -45,7 +45,6 @@ class TitleRatingService @Inject()(titleRatingDAO: TitleRatingDAO)(implicit ec: 
         case (rating, titleType) => MovieRatingDTO(titleType, rating.averageRating, rating.numVotes)
       }
     }
-
   }
 }
 

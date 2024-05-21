@@ -1,14 +1,23 @@
 package services
 
-import daos.{NameBasicDAO, TitleBasicDAO}
+import actors.TitleBasicActor
+import actors.TitleBasicActor.{GetMovieByTitle, MovieInfo}
+import akka.actor.{ActorRef, ActorSystem}
+import akka.util.Timeout
+import daos.TitleBasicDAO
 import models.TitleBasic
 import service.MovieWithDetailsDTO
-
+import akka.pattern.ask
 import javax.inject._
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO, nameBasicDAO: NameBasicDAO)(implicit ec: ExecutionContext) {
+class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: ExecutionContext) {
+
+  val actorSystem = ActorSystem("MovieActorSystem")
+  private val titleBasicActor: ActorRef = actorSystem.actorOf(TitleBasicActor.props(titleBasicDAO), "titleBasicActor")
+  implicit val timeout: Timeout = 5.seconds
 
   def getAll(): Future[Seq[TitleBasic]] = {
     titleBasicDAO.all()
@@ -31,6 +40,8 @@ class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO, nameBasicDAO: Na
   }
 
   def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
-    titleBasicDAO.searchByTitle(title)
+    (titleBasicActor ? GetMovieByTitle(title)).map {
+      case MovieInfo(movies) => movies
+    }
   }
 }
