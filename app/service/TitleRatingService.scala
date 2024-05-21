@@ -3,6 +3,7 @@ package services
 import javax.inject._
 import daos.TitleRatingDAO
 import models.TitleRating
+import service.MovieRatingDTO
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -27,6 +28,16 @@ class TitleRatingService @Inject()(titleRatingDAO: TitleRatingDAO)(implicit ec: 
 
   def delete(tconst: String): Future[Int] = {
     titleRatingDAO.delete(tconst)
+  }
+
+  def getTopRatedMoviesByGenre(genre: String): Future[Seq[MovieRatingDTO]] = {
+    for {
+      results <- titleRatingDAO.getTopRatedMoviesByGenre(genre)
+    } yield {
+      results.map {
+        case (rating, titleType) => MovieRatingDTO(titleType, rating.averageRating, rating.numVotes)
+      }
+    }
   }
 }
 

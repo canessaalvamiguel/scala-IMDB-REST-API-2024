@@ -1,5 +1,7 @@
 package daos
 
+import models.TitleBasicsTable.titleBasics
+
 import javax.inject.Inject
 import models.{TitleRating, TitleRatingsTable}
 import slick.jdbc.JdbcProfile
@@ -21,5 +23,17 @@ class TitleRatingDAO @Inject()(protected val dbConfigProvider: DatabaseConfigPro
   def update(tconst: String, updatedTitleRating: TitleRating): Future[Int] = db.run(titleRatings.filter(_.tconst === tconst).update(updatedTitleRating))
 
   def delete(tconst: String): Future[Int] = db.run(titleRatings.filter(_.tconst === tconst).delete)
+
+  def getTopRatedMoviesByGenre(genre: String): Future[Seq[(TitleRating, String)]] = {
+    val lowerGenre = genre.toLowerCase
+    val query = titleRatings
+      .join(titleBasics).on(_.tconst === _.tconst)
+      .filter(_._2.genres.toLowerCase.like(s"%$lowerGenre%"))
+      .sortBy(s => (s._1.averageRating.desc, s._1.numVotes.desc, s._2.originalTitle.asc))
+      .take(10)
+      .map { case (rating, basic) => (rating, basic.originalTitle.getOrElse("")) }
+
+    db.run(query.result)
+  }
 }
 
