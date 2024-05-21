@@ -20,6 +20,12 @@ POST    /titlecrews             controllers.TitleCrewController.create
 GET     /titlecrews/:tconst     controllers.TitleCrewController.read(tconst: String)
 PUT     /titlecrews/:tconst     controllers.TitleCrewController.update(tconst: String)
 DELETE  /titlecrews/:tconst     controllers.TitleCrewController.delete(tconst: String)
+GET     /titleprincipals               controllers.TitlePrincipalController.list
+POST    /titleprincipals               controllers.TitlePrincipalController.create
+GET     /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.read(tconst: String, ordering: Int, nconst: String)
+PUT     /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.update(tconst: String, ordering: Int, nconst: String)
+DELETE  /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.delete(tconst: String, ordering: Int, nconst: String)
+
 
 
 
