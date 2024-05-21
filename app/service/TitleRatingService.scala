@@ -5,10 +5,12 @@ import actors.TitleRatingActor.{GetTopRatedMoviesByGenre, MoviesByOriginalName}
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
+
 import javax.inject._
 import daos.TitleRatingDAO
 import models.TitleRating
-import service.MovieRatingDTO
+import service.dto.MovieRatingDTO
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 

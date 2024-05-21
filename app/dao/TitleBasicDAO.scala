@@ -2,7 +2,7 @@ package daos
 
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import service.{CrewDTO, MovieWithDetailsDTO, PrincipalDTO}
+import service.dto.{CrewDTO, MovieWithDetailsDTO, PrincipalDTO}
 import slick.jdbc.JdbcProfile
 
 import javax.inject.Inject

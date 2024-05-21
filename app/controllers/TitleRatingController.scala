@@ -1,19 +1,17 @@
 package controllers
 
-import javax.inject._
-import services.TitleRatingService
 import models.TitleRating
 import play.api.libs.json._
 import play.api.mvc._
-import service.MovieRatingDTO
+import services.TitleRatingService
 
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TitleRatingController @Inject()(val controllerComponents: ControllerComponents, titleRatingService: TitleRatingService)(implicit ec: ExecutionContext) extends BaseController {
 
   implicit val titleRatingFormat: OFormat[TitleRating] = Json.format[TitleRating]
-  implicit val movieRatingDTOFormat: OFormat[MovieRatingDTO] = Json.format[MovieRatingDTO]
 
   def list() = Action.async {
     titleRatingService.getAll().map { titleRatings =>
