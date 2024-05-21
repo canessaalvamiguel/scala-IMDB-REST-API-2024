@@ -7,7 +7,7 @@ import akka.util.Timeout
 import daos.TitleBasicDAO
 import models.TitleBasic
 import akka.pattern.ask
-import service.dto.MovieWithDetailsDTO
+import services.dto.MovieWithDetailsDTO
 
 import javax.inject._
 import scala.concurrent.duration.DurationInt

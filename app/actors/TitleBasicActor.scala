@@ -3,7 +3,7 @@ package actors
 import actors.TitleBasicActor.{GetMovieByTitle, MovieInfo}
 import akka.actor.{Actor, Props}
 import daos.TitleBasicDAO
-import service.dto.MovieWithDetailsDTO
+import services.dto.MovieWithDetailsDTO
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

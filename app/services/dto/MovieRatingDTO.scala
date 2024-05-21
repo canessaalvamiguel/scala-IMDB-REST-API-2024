@@ -1,4 +1,4 @@
-package service.dto
+package services.dto
 
 import play.api.libs.json.{Json, OFormat}
 

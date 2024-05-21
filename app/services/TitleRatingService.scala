@@ -9,7 +9,7 @@ import akka.util.Timeout
 import javax.inject._
 import daos.TitleRatingDAO
 import models.TitleRating
-import service.dto.MovieRatingDTO
+import services.dto.MovieRatingDTO
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}

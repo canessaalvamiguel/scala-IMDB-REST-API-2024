@@ -3,7 +3,7 @@ package controllers
 import models.TitleBasic
 import play.api.libs.json._
 import play.api.mvc._
-import service.dto.MovieWithDetailsDTO
+import services.dto.MovieWithDetailsDTO
 import services.TitleBasicService
 
 import javax.inject._
