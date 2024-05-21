@@ -25,6 +25,12 @@ POST    /titleprincipals               controllers.TitlePrincipalController.crea
 GET     /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.read(tconst: String, ordering: Int, nconst: String)
 PUT     /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.update(tconst: String, ordering: Int, nconst: String)
 DELETE  /titleprincipals/:tconst/:ordering/:nconst     controllers.TitlePrincipalController.delete(tconst: String, ordering: Int, nconst: String)
+GET     /titleratings               controllers.TitleRatingController.list
+POST    /titleratings               controllers.TitleRatingController.create
+GET     /titleratings/:tconst       controllers.TitleRatingController.read(tconst: String)
+PUT     /titleratings/:tconst       controllers.TitleRatingController.update(tconst: String)
+DELETE  /titleratings/:tconst       controllers.TitleRatingController.delete(tconst: String)
+
 
 
 
