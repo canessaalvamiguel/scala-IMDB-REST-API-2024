@@ -8,17 +8,21 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NameBasicController @Inject()(val controllerComponents: ControllerComponents, nameBasicService: NameBasicService)(implicit ec: ExecutionContext) extends BaseController {
+class NameBasicController @Inject()(val controllerComponents: ControllerComponents,
+                                    nameBasicService: NameBasicService,
+                                    customAction: CustomActionBuilder
+                                   )
+                                   (implicit ec: ExecutionContext) extends BaseController {
 
   implicit val nameBasicFormat: OFormat[NameBasic] = Json.format[NameBasic]
 
-  def list() = Action.async {
+  def list() = customAction.async {
     nameBasicService.getAll().map { nameBasics =>
       Ok(Json.toJson(nameBasics))
     }
   }
 
-  def create() = Action.async(parse.json) { request =>
+  def create() = customAction.async(parse.json) { request =>
     request.body.validate[NameBasic].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       nameBasic => {
@@ -29,14 +33,14 @@ class NameBasicController @Inject()(val controllerComponents: ControllerComponen
     )
   }
 
-  def read(nconst: String) = Action.async {
+  def read(nconst: String) = customAction.async {
     nameBasicService.getById(nconst).map {
       case Some(nameBasic) => Ok(Json.toJson(nameBasic))
       case None => NotFound(Json.obj("message" -> s"NameBasic with nconst $nconst not found"))
     }
   }
 
-  def update(nconst: String) = Action.async(parse.json) { request =>
+  def update(nconst: String) = customAction.async(parse.json) { request =>
     request.body.validate[NameBasic].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       updatedNameBasic => {
@@ -48,7 +52,7 @@ class NameBasicController @Inject()(val controllerComponents: ControllerComponen
     )
   }
 
-  def delete(nconst: String) = Action.async {
+  def delete(nconst: String) = customAction.async {
     nameBasicService.delete(nconst).map {
       case 0 => NotFound(Json.obj("message" -> s"NameBasic with nconst $nconst not found"))
       case _ => NoContent

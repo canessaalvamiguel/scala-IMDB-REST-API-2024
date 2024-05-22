@@ -2,7 +2,7 @@ package controllers
 
 import play.api.libs.json.Json
 import play.api.mvc._
-import services.DatabaseException
+import services.exceptions.DatabaseException
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

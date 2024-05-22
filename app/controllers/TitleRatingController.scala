@@ -9,17 +9,21 @@ import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TitleRatingController @Inject()(val controllerComponents: ControllerComponents, titleRatingService: TitleRatingService)(implicit ec: ExecutionContext) extends BaseController {
+class TitleRatingController @Inject()(val controllerComponents: ControllerComponents,
+                                      titleRatingService: TitleRatingService,
+                                      customAction: CustomActionBuilder
+                                     )
+                                     (implicit ec: ExecutionContext) extends BaseController {
 
   implicit val titleRatingFormat: OFormat[TitleRating] = Json.format[TitleRating]
 
-  def list() = Action.async {
+  def list() = customAction.async {
     titleRatingService.getAll().map { titleRatings =>
       Ok(Json.toJson(titleRatings))
     }
   }
 
-  def create() = Action.async(parse.json) { request =>
+  def create() = customAction.async(parse.json) { request =>
     request.body.validate[TitleRating].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       titleRating => {
@@ -30,14 +34,14 @@ class TitleRatingController @Inject()(val controllerComponents: ControllerCompon
     )
   }
 
-  def read(tconst: String) = Action.async {
+  def read(tconst: String) = customAction.async {
     titleRatingService.getById(tconst).map {
       case Some(titleRating) => Ok(Json.toJson(titleRating))
       case None => NotFound(Json.obj("message" -> s"TitleRating with tconst $tconst not found"))
     }
   }
 
-  def update(tconst: String) = Action.async(parse.json) { request =>
+  def update(tconst: String) = customAction.async(parse.json) { request =>
     request.body.validate[TitleRating].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       updatedTitleRating => {
@@ -49,14 +53,14 @@ class TitleRatingController @Inject()(val controllerComponents: ControllerCompon
     )
   }
 
-  def delete(tconst: String) = Action.async {
+  def delete(tconst: String) = customAction.async {
     titleRatingService.delete(tconst).map {
       case 0 => NotFound(Json.obj("message" -> s"TitleRating with tconst $tconst not found"))
       case _ => NoContent
     }
   }
 
-  def getTopRatedMoviesByGenre(genre: String) = Action.async{
+  def getTopRatedMoviesByGenre(genre: String) = customAction.async{
     if (genre.length < 3) {
       val errorResponse = Json.obj(
         "error" -> "Genre must be at least 3 characters long"

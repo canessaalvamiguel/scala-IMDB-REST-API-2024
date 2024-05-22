@@ -26,7 +26,7 @@ class TitleBasicController @Inject()(
     }
   }
 
-  def create() = Action.async(parse.json) { request =>
+  def create() = customAction.async(parse.json) { request =>
     request.body.validate[TitleBasic].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       titleBasic => {
@@ -37,14 +37,14 @@ class TitleBasicController @Inject()(
     )
   }
 
-  def read(tconst: String) = Action.async {
+  def read(tconst: String) = customAction.async {
     titleBasicService.getById(tconst).map {
       case Some(titleBasic) => Ok(Json.toJson(titleBasic))
       case None => NotFound(Json.obj("message" -> s"TitleBasic with tconst $tconst not found"))
     }
   }
 
-  def update(tconst: String) = Action.async(parse.json) { request =>
+  def update(tconst: String) = customAction.async(parse.json) { request =>
     request.body.validate[TitleBasic].fold(
       errors => Future.successful(BadRequest(Json.obj("message" -> JsError.toJson(errors)))),
       updatedTitleBasic => {
@@ -63,7 +63,7 @@ class TitleBasicController @Inject()(
     }
   }
 
-  def searchByTitle(title: String) = Action.async { implicit request =>
+  def searchByTitle(title: String) = customAction.async { implicit request =>
     if (title.length < 3) {
       val errorResponse = Json.obj(
         "error" -> "Title must be at least 3 characters long"

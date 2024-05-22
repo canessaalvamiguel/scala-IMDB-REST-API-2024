@@ -2,8 +2,8 @@ package daos
 
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import services.DatabaseException
 import services.dto.{CrewDTO, MovieWithDetailsDTO, PrincipalDTO}
+import services.exceptions.DatabaseException
 import slick.jdbc.JdbcProfile
 
 import java.sql.SQLException
@@ -18,22 +18,27 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
   private val titleCrews = TitleCrewsTable.titleCrews
   private val nameBasics = NameBasicsTable.nameBasics
 
-  def all(): Future[Seq[TitleBasic]] = db.run(titleBasics.take(10).result)
-
-  def insert(titleBasic: TitleBasic): Future[Int] = db.run(titleBasics += titleBasic)
-
-  def findById(tconst: String): Future[Option[TitleBasic]] = db.run(titleBasics.filter(_.tconst === tconst).result.headOption)
-
-  def update(tconst: String, updatedTitleBasic: TitleBasic): Future[Int] = db.run(titleBasics.filter(_.tconst === tconst).update(updatedTitleBasic))
-
-  def delete(tconst: String): Future[Int] = db.run(titleBasics.filter(_.tconst === tconst).delete).recoverWith {
-    case e: SQLException =>
-      Future.failed(DatabaseException(s"Cannot delete title with tconst $tconst due to foreign key constraint violation.", e))
-    case e: Exception =>
-      Future.failed(DatabaseException("Database operation failed", e))
+  def all(): Future[Seq[TitleBasic]] = handleExceptions {
+    db.run(titleBasics.take(10).result)
   }
 
-  def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
+  def insert(titleBasic: TitleBasic): Future[Int] = handleExceptions {
+    db.run(titleBasics += titleBasic)
+  }
+
+  def findById(tconst: String): Future[Option[TitleBasic]] = handleExceptions {
+    db.run(titleBasics.filter(_.tconst === tconst).result.headOption)
+  }
+
+  def update(tconst: String, updatedTitleBasic: TitleBasic): Future[Int] = handleExceptions {
+    db.run(titleBasics.filter(_.tconst === tconst).update(updatedTitleBasic))
+  }
+
+  def delete(tconst: String): Future[Int] = handleExceptions {
+    db.run(titleBasics.filter(_.tconst === tconst).delete)
+  }
+
+  def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = handleExceptions {
     val query = for {
       basic <- titleBasics if basic.primaryTitle.toLowerCase.like(s"%${title.toLowerCase}%") || basic.originalTitle.toLowerCase.like(s"%${title.toLowerCase}%")
       principals <- titlePrincipals if principals.tconst === basic.tconst
@@ -88,8 +93,17 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
     }
   }
 
-  def getNamesByIds(ids: Seq[String]): Future[Seq[NameBasic]] = {
+  def getNamesByIds(ids: Seq[String]): Future[Seq[NameBasic]] = handleExceptions {
     val query = nameBasics.filter(_.nconst inSet ids)
     db.run(query.result)
+  }
+
+  private def handleExceptions[T](operation: => Future[T]): Future[T] = {
+    operation.recover {
+      case e: SQLException =>
+        throw DatabaseException("Database operation failed due to SQL exception", e)
+      case e: Exception =>
+        throw DatabaseException("Database operation failed", e)
+    }
   }
 }
