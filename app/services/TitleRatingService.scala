@@ -41,9 +41,9 @@ class TitleRatingService @Inject()(titleRatingDAO: TitleRatingDAO)(implicit ec: 
   }
 
   def getTopRatedMoviesByGenre(genre: String): Future[Seq[MovieRatingDTO]] = {
-    (titleRatingActor ? GetTopRatedMoviesByGenre(genre)).map {
-      case MoviesByOriginalName(movies) => movies.map{
-        case (rating, titleType) => MovieRatingDTO(titleType, rating.averageRating, rating.numVotes)
+    (titleRatingActor ? GetTopRatedMoviesByGenre(genre)).mapTo[Seq[(TitleRating, String)]].map { movies =>
+      movies.map { case (rating, title) =>
+        MovieRatingDTO(title, rating.averageRating, rating.numVotes)
       }
     }
   }

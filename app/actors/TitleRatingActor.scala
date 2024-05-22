@@ -1,7 +1,8 @@
 package actors
 
-import actors.TitleRatingActor.{Delete, GetAll, GetById, GetTopRatedMoviesByGenre, Insert, MoviesByOriginalName, Update}
+import actors.TitleRatingActor._
 import akka.actor.{Actor, Props}
+import akka.pattern.pipe
 import daos.TitleRatingDAO
 import models.TitleRating
 
@@ -12,41 +13,27 @@ class TitleRatingActor @Inject()(titleRatingDAO: TitleRatingDAO)(implicit ec: Ex
 
   def receive: Receive = {
     case GetTopRatedMoviesByGenre(genre) =>
-      val senderRef = sender()
-      titleRatingDAO.getTopRatedMoviesByGenre(genre).map { rated =>
-        senderRef ! MoviesByOriginalName(rated)
-      }
+      titleRatingDAO.getTopRatedMoviesByGenre(genre) pipeTo sender()
+
     case GetAll() =>
-      val senderRef = sender()
-      titleRatingDAO.all().map { rating =>
-        senderRef ! rating
-      }
+      titleRatingDAO.all() pipeTo sender()
+
     case Insert(titleBasic) =>
-      val senderRef = sender()
-      titleRatingDAO.insert(titleBasic).map { result =>
-        senderRef ! result
-      }
+      titleRatingDAO.insert(titleBasic) pipeTo sender()
+
     case GetById(tconst) =>
-      val senderRef = sender()
-      titleRatingDAO.findById(tconst).map { rating =>
-        senderRef ! rating
-      }
+      titleRatingDAO.findById(tconst) pipeTo sender()
+
     case Update(tconst, titleBasic) =>
-      val senderRef = sender()
-      titleRatingDAO.update(tconst, titleBasic).map { result =>
-        senderRef ! result
-      }
+      titleRatingDAO.update(tconst, titleBasic) pipeTo sender()
+
     case Delete(tconst) =>
-      val senderRef = sender()
-      titleRatingDAO.delete(tconst).map { result =>
-        senderRef ! result
-      }
+      titleRatingDAO.delete(tconst) pipeTo sender()
   }
 }
 
 object TitleRatingActor {
   case class GetTopRatedMoviesByGenre(originalName: String)
-  case class MoviesByOriginalName(movies: Seq[(TitleRating, String)])
   case class GetMovieByTitle(title: String)
   case class GetAll()
   case class Insert(titleBasic: TitleRating)
