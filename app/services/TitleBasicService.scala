@@ -1,12 +1,12 @@
 package services
 
 import actors.TitleBasicActor
-import actors.TitleBasicActor.{Delete, GetAll, GetById, GetMovieByTitle, Insert, MovieInfo, Update}
+import actors.TitleBasicActor._
 import akka.actor.{ActorRef, ActorSystem}
+import akka.pattern.ask
 import akka.util.Timeout
 import daos.TitleBasicDAO
 import models.TitleBasic
-import akka.pattern.ask
 import services.dto.MovieWithDetailsDTO
 
 import javax.inject._
@@ -18,7 +18,7 @@ class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: Exe
 
   val actorSystem = ActorSystem("MovieActorSystem")
   private val titleBasicActor: ActorRef = actorSystem.actorOf(TitleBasicActor.props(titleBasicDAO), "titleBasicActor")
-  implicit val timeout: Timeout = 20.seconds
+  implicit val timeout: Timeout = 5.seconds
 
   def getAll(): Future[Seq[TitleBasic]] = {
     (titleBasicActor ? GetAll()).mapTo[Seq[TitleBasic]]
@@ -41,8 +41,6 @@ class TitleBasicService @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: Exe
   }
 
   def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
-    (titleBasicActor ? GetMovieByTitle(title)).map {
-      case MovieInfo(movies) => movies
-    }
+    (titleBasicActor ? GetMovieByTitle(title)).mapTo[Seq[MovieWithDetailsDTO]]
   }
 }

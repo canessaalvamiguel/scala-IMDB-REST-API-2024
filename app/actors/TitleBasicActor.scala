@@ -1,7 +1,8 @@
 package actors
 
-import actors.TitleBasicActor.{Delete, GetAll, GetById, GetMovieByTitle, Insert, MovieInfo, Update}
+import actors.TitleBasicActor._
 import akka.actor.{Actor, Props}
+import akka.pattern.pipe
 import daos.TitleBasicDAO
 import models.TitleBasic
 import services.dto.MovieWithDetailsDTO
@@ -13,35 +14,22 @@ class TitleBasicActor @Inject()(titleBasicDAO: TitleBasicDAO)(implicit ec: Execu
 
   def receive: Receive = {
     case GetMovieByTitle(title) =>
-      val senderRef = sender()
-      titleBasicDAO.searchByTitle(title).map { movies =>
-        senderRef ! MovieInfo(movies)
-      }
+      titleBasicDAO.searchByTitle(title) pipeTo sender()
+
     case GetAll() =>
-      val senderRef = sender()
-      titleBasicDAO.all().map { movies =>
-        senderRef ! movies
-      }
+      titleBasicDAO.all() pipeTo sender()
+
     case Insert(titleBasic) =>
-      val senderRef = sender()
-      titleBasicDAO.insert(titleBasic).map { result =>
-        senderRef ! result
-      }
+      titleBasicDAO.insert(titleBasic) pipeTo sender()
+
     case GetById(tconst) =>
-      val senderRef = sender()
-      titleBasicDAO.findById(tconst).map { movie =>
-        senderRef ! movie
-      }
+      titleBasicDAO.findById(tconst) pipeTo sender()
+
     case Update(tconst, titleBasic) =>
-      val senderRef = sender()
-      titleBasicDAO.update(tconst, titleBasic).map { result =>
-        senderRef ! result
-      }
+      titleBasicDAO.update(tconst, titleBasic) pipeTo sender()
+
     case Delete(tconst) =>
-      val senderRef = sender()
-      titleBasicDAO.delete(tconst).map { result =>
-        senderRef ! result
-      }
+      titleBasicDAO.delete(tconst) pipeTo sender()
   }
 }
 

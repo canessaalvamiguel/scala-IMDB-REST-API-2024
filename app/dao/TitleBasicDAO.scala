@@ -2,9 +2,11 @@ package daos
 
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import services.DatabaseException
 import services.dto.{CrewDTO, MovieWithDetailsDTO, PrincipalDTO}
 import slick.jdbc.JdbcProfile
 
+import java.sql.SQLException
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,7 +18,6 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
   private val titleCrews = TitleCrewsTable.titleCrews
   private val nameBasics = NameBasicsTable.nameBasics
 
-
   def all(): Future[Seq[TitleBasic]] = db.run(titleBasics.take(10).result)
 
   def insert(titleBasic: TitleBasic): Future[Int] = db.run(titleBasics += titleBasic)
@@ -25,7 +26,12 @@ class TitleBasicDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
 
   def update(tconst: String, updatedTitleBasic: TitleBasic): Future[Int] = db.run(titleBasics.filter(_.tconst === tconst).update(updatedTitleBasic))
 
-  def delete(tconst: String): Future[Int] = db.run(titleBasics.filter(_.tconst === tconst).delete)
+  def delete(tconst: String): Future[Int] = db.run(titleBasics.filter(_.tconst === tconst).delete).recoverWith {
+    case e: SQLException =>
+      Future.failed(DatabaseException(s"Cannot delete title with tconst $tconst due to foreign key constraint violation.", e))
+    case e: Exception =>
+      Future.failed(DatabaseException("Database operation failed", e))
+  }
 
   def searchByTitle(title: String): Future[Seq[MovieWithDetailsDTO]] = {
     val query = for {

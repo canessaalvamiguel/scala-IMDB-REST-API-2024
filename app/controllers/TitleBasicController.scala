@@ -3,8 +3,8 @@ package controllers
 import models.TitleBasic
 import play.api.libs.json._
 import play.api.mvc._
-import services.dto.MovieWithDetailsDTO
 import services.TitleBasicService
+import services.dto.MovieWithDetailsDTO
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
@@ -12,7 +12,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class TitleBasicController @Inject()(
                                       val controllerComponents: ControllerComponents,
-                                      titleBasicService: TitleBasicService
+                                      titleBasicService: TitleBasicService,
+                                      customAction: CustomActionBuilder
                                     )
                                     (implicit ec: ExecutionContext) extends BaseController{
 
@@ -55,7 +56,7 @@ class TitleBasicController @Inject()(
     )
   }
 
-  def delete(tconst: String) = Action.async {
+  def delete(tconst: String) = customAction.async {
     titleBasicService.delete(tconst).map {
       case 0 => NotFound(Json.obj("message" -> s"TitleBasic with tconst $tconst not found"))
       case _ => NoContent
